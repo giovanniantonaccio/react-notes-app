@@ -50,6 +50,12 @@ export default function Note({
     }
   };
 
+  const resetState = () => {
+    setTitle(xTitle);
+    setContent(xContent);
+    setTags(xTags);
+  };
+
   const Menu = (
     <div style={{ margin: "-12px -16px" }}>
       <Col>
@@ -161,6 +167,8 @@ export default function Note({
               <Button
                 onClick={(e) => {
                   setIsEditingMode(false);
+                  setIsAddingTag(false);
+                  resetState();
                 }}
               >
                 Cancel
