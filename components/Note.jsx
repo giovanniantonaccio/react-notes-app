@@ -1,4 +1,5 @@
 import {
+  message,
   Button,
   Card,
   Col,
@@ -20,6 +21,8 @@ import {
 } from "@ant-design/icons";
 import Avatar from "antd/lib/avatar/avatar";
 import { parseISO, formatDistance } from "date-fns";
+
+const { Paragraph, Text } = Typography;
 
 export default function Note({
   id,
@@ -50,18 +53,39 @@ export default function Note({
     }
   };
 
-  const resetState = () => {
+  const handleSaveNote = () => {
+    if (title === "") {
+      message.error("Title cannot be empty");
+      return;
+    }
+    if (content === "") {
+      message.error("Content cannot be empty");
+      return;
+    }
+    setIsAddingTag(false);
+    setIsEditingMode(false);
+    console.log("save", { title, content, tags });
+    // TODO: api /updateNote
+  };
+
+  const handleDeleteNote = () => {
+    console.log("delete", id);
+  };
+
+  const handleCancel = () => {
+    setIsAddingTag(false);
+    setIsEditingMode(false);
     setTitle(xTitle);
     setContent(xContent);
     setTags(xTags);
   };
 
-  const Menu = (
-    <div style={{ margin: "-12px -16px" }}>
+  const ContextMenu = (
+    <div style={{ margin: "-12px -16px", width: "120px" }}>
       <Col>
         <Button
           type="text"
-          style={{ width: "100%" }}
+          style={{ width: "100%", color: "#1890ff" }}
           icon={<EditOutlined />}
           onClick={() => setIsEditingMode(true)}
         >
@@ -71,9 +95,7 @@ export default function Note({
           type="text"
           style={{ width: "100%", color: "red" }}
           icon={<DeleteOutlined />}
-          onClick={() => {
-            console.log("delete", id);
-          }}
+          onClick={handleDeleteNote}
         >
           Delete
         </Button>
@@ -81,23 +103,22 @@ export default function Note({
     </div>
   );
 
-  const contentChange = (e) => {
-    // console.log(e);
-    setContent(e);
-  };
-
   return (
     <Card
       title={
-        <Typography.Paragraph
-          editable={{ editing: isEditingMode, icon: <></>, onChange: setTitle }}
+        <Paragraph
+          editable={{
+            editing: isEditingMode,
+            icon: <></>,
+            onChange: setTitle,
+          }}
         >
           {title}
-        </Typography.Paragraph>
+        </Paragraph>
       }
       extra={
         !isEditingMode && (
-          <Popover placement="bottomRight" content={Menu}>
+          <Popover placement="bottomRight" content={ContextMenu}>
             <Tooltip title="Menu">
               <Button type="text" shape="circle" icon={<MoreOutlined />} />
             </Tooltip>
@@ -106,35 +127,33 @@ export default function Note({
       }
       style={{ width: "100%" }}
     >
-      <Space direction="vertical">
+      <Space direction="vertical" style={{ width: "100%" }}>
         <Row align="middle">
           <Avatar size="small" icon={<UserOutlined />} />
-          <Typography.Text italic style={{ marginLeft: "8px", color: "gray" }}>
+          <Text italic style={{ marginLeft: "8px", color: "gray" }}>
             {created_by}
-          </Typography.Text>
+          </Text>
         </Row>
 
-        <Typography.Paragraph
+        <Paragraph
           style={{ left: 0 }}
           ellipsis={!isEditingMode ? { rows: 4 } : false}
           editable={{
             editing: isEditingMode,
             icon: <></>,
-            onChange: contentChange,
+            onChange: setContent,
           }}
+          onKeyDown={(e) => console.log(e)}
         >
           {content}
-        </Typography.Paragraph>
+        </Paragraph>
 
         <Row gutter={[8, 8]}>
           {tags.map((tag) => (
             <Tag
               key={tag}
               closable={isEditingMode}
-              onClose={(e) => {
-                e.preventDefault();
-                handleDeleteTag(tag);
-              }}
+              onClose={() => handleDeleteTag(tag)}
             >
               {tag}
             </Tag>
@@ -157,29 +176,19 @@ export default function Note({
         </Row>
 
         <Row>
-          <Typography.Text italic style={{ color: "gray" }}>
+          <Text italic style={{ color: "gray" }}>
             Last change: {formatDistance(parseISO(updated_at), new Date())}
-          </Typography.Text>
+          </Text>
         </Row>
+
         {isEditingMode && (
           <Row justify="end">
             <Space>
-              <Button
-                onClick={(e) => {
-                  setIsEditingMode(false);
-                  setIsAddingTag(false);
-                  resetState();
-                }}
-              >
-                Cancel
-              </Button>
+              <Button onClick={handleCancel}>Cancel</Button>
               <Button
                 type="primary"
-                onClick={(e) => {
-                  setIsEditingMode(false);
-                  // TODO: api /updateNote
-                }}
-                disabled={title === "" || content === "" || isAddingTag}
+                onClick={handleSaveNote}
+                disabled={isAddingTag}
               >
                 Save
               </Button>
