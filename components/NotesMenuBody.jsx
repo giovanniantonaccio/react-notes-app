@@ -1,9 +1,10 @@
 import { Button, Col, Row, Space } from "antd";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import Note from "./Note";
+import NewNote from "./NewNote";
 
-const notes = [
+const mock = [
   {
     id: "1",
     tags: ["INFO"],
@@ -35,16 +36,53 @@ const notes = [
 ];
 
 export default function NotesMenuBody() {
+  const [notes, setNotes] = useState(mock);
+  const [isAddingNewNote, setIsAddingNewNote] = useState(false);
+
+  useEffect(() => {
+    console.log(notes);
+  }, [notes]);
+
+  const onNewNoteSave = (data) => {
+    setIsAddingNewNote(false);
+    // TODO: refresh list of notes
+    setNotes([
+      ...notes,
+      {
+        ...data,
+        id: Math.random(),
+        type: "GLO",
+        page_url: "https://www.djangoproject.com/",
+        anchor: "lorem ipsum",
+        thumbs_count: 2,
+        created_by: "Giovanni Antonaccio",
+        created_at: "2019-10-31T01:30:00.000-05:00",
+        updated_at: "2019-10-31T01:30:00.000-05:00",
+      },
+    ]);
+  };
+
+  const onNewNoteCancel = () => {
+    setIsAddingNewNote(false);
+  };
+
   return (
     <Col>
-      <Row
-        justify="center"
-        style={{ width: "100%", padding: "16px", background: "#fafafa" }}
-      >
-        <Button type="primary" icon={<PlusOutlined />} size="large">
-          Add new note
-        </Button>
-      </Row>
+      {!isAddingNewNote && (
+        <Row
+          justify="center"
+          style={{ width: "100%", padding: "16px", background: "#fafafa" }}
+        >
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={() => setIsAddingNewNote(true)}
+          >
+            Add new note
+          </Button>
+        </Row>
+      )}
       <Col
         style={{
           padding: "16px",
@@ -58,6 +96,10 @@ export default function NotesMenuBody() {
           direction="vertical"
           style={{ width: "100%", marginBottom: "150px" }}
         >
+          {isAddingNewNote && (
+            <NewNote onSave={onNewNoteSave} onCancel={onNewNoteCancel} />
+          )}
+
           {notes.map((note) => {
             const { id, tags, title, content, created_by, updated_at } = note;
             return (
