@@ -19,22 +19,21 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import Avatar from "antd/lib/avatar/avatar";
+import { parseISO, formatDistance } from "date-fns";
 
-const defaultContent = ` Ant Design, a design language for background applications, is refined by
-Ant UED Team. Ant Design, a design language for background applications,
-is refined by Ant UED Team. Ant Design, a design language for background
-applications, is refined by Ant UED Team. Ant Design, a design language
-for background applications, is refined by Ant UED Team. Ant Design, a
-design language for background applications, is refined by Ant UED Team.
-Ant Design, a design language for background applications, is refined by
-Ant UED Team.`;
+export default function Note({
+  tags: xTags,
+  title: xTitle,
+  content: xContent,
+  created_by,
+  updated_at,
+}) {
+  const [title, setTitle] = useState(xTitle);
+  const [content, setContent] = useState(xContent);
+  const [tags, setTags] = useState(xTags);
 
-export default function Note() {
-  const [title, setTitle] = useState("Default Title");
-  const [content, setContent] = useState(defaultContent);
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [isAddingTag, setIsAddingTag] = useState(false);
-  const [tags, setTags] = useState(["as", "conversations", "tips"]);
 
   const handleAddTag = (e) => {
     setTags([...tags, e.target.value]);
@@ -72,10 +71,6 @@ export default function Note() {
     </div>
   );
 
-  // useEffect(() => {
-  //   console.log(title, content);
-  // }, [title, content]);
-
   const contentChange = (e) => {
     // console.log(e);
     setContent(e);
@@ -105,7 +100,7 @@ export default function Note() {
         <Row align="middle">
           <Avatar size="small" icon={<UserOutlined />} />
           <Typography.Text italic style={{ marginLeft: "8px", color: "gray" }}>
-            Giovanni Antonaccio
+            {created_by}
           </Typography.Text>
         </Row>
 
@@ -153,20 +148,30 @@ export default function Note() {
 
         <Row>
           <Typography.Text italic style={{ color: "gray" }}>
-            Last change: 2 hours ago
+            Last change: {formatDistance(parseISO(updated_at), new Date())}
           </Typography.Text>
         </Row>
         {isEditingMode && (
           <Row justify="end">
-            <Button
-              type="primary"
-              onClick={(e) => {
-                setIsEditingMode(false);
-              }}
-              disabled={title === "" || content === "" || isAddingTag}
-            >
-              Save
-            </Button>
+            <Space>
+              <Button
+                onClick={(e) => {
+                  setIsEditingMode(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={(e) => {
+                  setIsEditingMode(false);
+                  // TODO: api /updateNote
+                }}
+                disabled={title === "" || content === "" || isAddingTag}
+              >
+                Save
+              </Button>
+            </Space>
           </Row>
         )}
       </Space>
