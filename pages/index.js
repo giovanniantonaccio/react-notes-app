@@ -4,7 +4,8 @@ import { Button, Layout } from "antd";
 import NotesMenuHeader from "../components/NotesMenuHeader";
 import NotesMenuBody from "../components/NotesMenuBody";
 import SideMenu from "../components/SideMenu";
-import styles from "../styles/Home.module.css";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+
 const { Header, Content, Footer, Sider } = Layout;
 
 export default function Home() {
@@ -26,17 +27,26 @@ export default function Home() {
       >
         <SideMenu />
       </Sider>
-      <Layout className={styles["site-layout"]} style={{ marginLeft: 200 }}>
-        <Header
-          className={styles["site-layout-background"]}
-          style={{ padding: 0 }}
-        >
+      <Layout
+        style={{
+          height: "100vh",
+          marginLeft: isSideMenuCollapsed ? "80px" : "200px",
+          transition: "margin-left 0.2s",
+        }}
+      >
+        <Header style={{ padding: 0, background: "#fff", padding: "0 16px" }}>
           <Button
-            type="primary"
+            type="text"
+            shape={"circle"}
+            icon={
+              isSideMenuCollapsed ? (
+                <MenuUnfoldOutlined />
+              ) : (
+                <MenuFoldOutlined />
+              )
+            }
             onClick={() => setIsSideMenuCollapsed(!isSideMenuCollapsed)}
-          >
-            Menu
-          </Button>
+          ></Button>
         </Header>
         <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
           <div
@@ -50,7 +60,6 @@ export default function Home() {
       </Layout>
       <Sider
         style={{
-          // overflow: "auto",
           height: "100vh",
           position: "fixed",
           right: 0,
