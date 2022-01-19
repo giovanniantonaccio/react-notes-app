@@ -14,6 +14,9 @@ import {
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 
+import NoteTitle from "./NoteTitle";
+import NoteContent from "./NoteContent";
+
 const { Paragraph } = Typography;
 
 export default function NewNote({ onSave, onCancel }) {
@@ -57,34 +60,11 @@ export default function NewNote({ onSave, onCancel }) {
 
   return (
     <Card
-      title={
-        <Paragraph
-          editable={{
-            editing: true,
-            icon: <></>,
-            onChange: setTitle,
-          }}
-        >
-          {title}
-        </Paragraph>
-      }
+      title={<NoteTitle editing={true} onChange={setTitle} title={title} />}
       style={{ width: "100%" }}
     >
       <Space direction="vertical" style={{ width: "100%" }}>
-        <Paragraph
-          style={{ left: 0 }}
-          editable={{
-            editing: true,
-            icon: <></>,
-            onChange: setContent,
-            autoSize: {
-              minRows: 4,
-            },
-          }}
-          onKeyDown={(e) => console.log(e)}
-        >
-          {content}
-        </Paragraph>
+        <NoteContent isEditing onChange={setContent} content="" />
 
         <Row gutter={[8, 8]}>
           {tags.map((tag) => (

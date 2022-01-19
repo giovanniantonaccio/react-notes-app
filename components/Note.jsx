@@ -21,6 +21,8 @@ import {
 } from "@ant-design/icons";
 import Avatar from "antd/lib/avatar/avatar";
 import { parseISO, formatDistance } from "date-fns";
+import NoteTitle from "./NoteTitle";
+import NoteContent from "./NoteContent";
 
 const { Paragraph, Text } = Typography;
 
@@ -106,15 +108,7 @@ export default function Note({
   return (
     <Card
       title={
-        <Paragraph
-          editable={{
-            editing: isEditingMode,
-            icon: <></>,
-            onChange: setTitle,
-          }}
-        >
-          {title}
-        </Paragraph>
+        <NoteTitle editing={isEditingMode} onChange={setTitle} title={title} />
       }
       extra={
         !isEditingMode && (
@@ -135,18 +129,11 @@ export default function Note({
           </Text>
         </Row>
 
-        <Paragraph
-          style={{ left: 0 }}
-          ellipsis={!isEditingMode ? { rows: 4 } : false}
-          editable={{
-            editing: isEditingMode,
-            icon: <></>,
-            onChange: setContent,
-          }}
-          onKeyDown={(e) => console.log(e)}
-        >
-          {content}
-        </Paragraph>
+        <NoteContent
+          isEditing={isEditingMode}
+          onChange={setContent}
+          content={content}
+        />
 
         <Row gutter={[8, 8]}>
           {tags.map((tag) => (
