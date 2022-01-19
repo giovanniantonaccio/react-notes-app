@@ -2,6 +2,7 @@ import {
   Button,
   Card,
   Col,
+  Input,
   Popover,
   Row,
   Space,
@@ -9,7 +10,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   MoreOutlined,
   DeleteOutlined,
@@ -31,7 +32,23 @@ Ant UED Team.`;
 export default function Note() {
   const [title, setTitle] = useState("Default Title");
   const [content, setContent] = useState(defaultContent);
-  const [editingMode, setEditingMode] = useState(false);
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [isAddingTag, setIsAddingTag] = useState(false);
+  const [tags, setTags] = useState(["as", "conversations", "tips"]);
+
+  const handleAddTag = (e) => {
+    setTags([...tags, e.target.value]);
+    setIsAddingTag(false);
+  };
+
+  const handleDeleteTag = (tag) => {
+    const newTags = [...tags];
+    const index = newTags.indexOf(tag);
+    if (index > -1) {
+      newTags.splice(index, 1);
+      setTags(newTags);
+    }
+  };
 
   const Menu = (
     <div style={{ margin: "-12px -16px" }}>
@@ -40,7 +57,7 @@ export default function Note() {
           type="text"
           style={{ width: "100%" }}
           icon={<EditOutlined />}
-          onClick={() => setEditingMode(true)}
+          onClick={() => setIsEditingMode(true)}
         >
           Edit
         </Button>
@@ -55,12 +72,12 @@ export default function Note() {
     </div>
   );
 
-  useEffect(() => {
-    console.log(title, content);
-  }, [title, content]);
+  // useEffect(() => {
+  //   console.log(title, content);
+  // }, [title, content]);
 
   const contentChange = (e) => {
-    console.log(e);
+    // console.log(e);
     setContent(e);
   };
 
@@ -68,17 +85,19 @@ export default function Note() {
     <Card
       title={
         <Typography.Paragraph
-          editable={{ editing: editingMode, icon: <></>, onChange: setTitle }}
+          editable={{ editing: isEditingMode, icon: <></>, onChange: setTitle }}
         >
           {title}
         </Typography.Paragraph>
       }
       extra={
-        <Popover placement="bottomRight" content={Menu}>
-          <Tooltip title="Menu">
-            <Button type="text" shape="circle" icon={<MoreOutlined />} />
-          </Tooltip>
-        </Popover>
+        !isEditingMode && (
+          <Popover placement="bottomRight" content={Menu}>
+            <Tooltip title="Menu">
+              <Button type="text" shape="circle" icon={<MoreOutlined />} />
+            </Tooltip>
+          </Popover>
+        )
       }
       style={{ width: "100%" }}
     >
@@ -89,10 +108,12 @@ export default function Note() {
             Giovanni Antonaccio
           </Typography.Text>
         </Row>
+
         <Typography.Paragraph
-          ellipsis={!editingMode ? { rows: 4 } : false}
+          style={{ left: 0 }}
+          ellipsis={!isEditingMode ? { rows: 4 } : false}
           editable={{
-            editing: editingMode,
+            editing: isEditingMode,
             icon: <></>,
             onChange: contentChange,
           }}
@@ -101,36 +122,48 @@ export default function Note() {
         </Typography.Paragraph>
 
         <Row gutter={[8, 8]}>
-          <Tag color="magenta">magenta</Tag>
-          <Tag color="red">red</Tag>
-          {/* <Tag color="volcano">long text</Tag> */}
-          <Tooltip title="Add new tag">
-            <Button
-              type="ghost"
-              shape="circle"
-              icon={<PlusOutlined />}
-              size="small"
-            ></Button>
-          </Tooltip>
+          {tags.map((tag) => (
+            <Tag
+              key={tag}
+              closable={isEditingMode}
+              onClose={(e) => {
+                e.preventDefault();
+                handleDeleteTag(tag);
+              }}
+            >
+              {tag}
+            </Tag>
+          ))}
+          {isEditingMode && !isAddingTag && (
+            <Tooltip title="Add new tag">
+              <Button
+                type="dashed"
+                icon={<PlusOutlined />}
+                size="small"
+                onClick={() => setIsAddingTag(!isAddingTag)}
+              >
+                Add tag
+              </Button>
+            </Tooltip>
+          )}
+          {isAddingTag && (
+            <Input placeholder="Add new tag..." onPressEnter={handleAddTag} />
+          )}
         </Row>
 
         <Row>
-          {/* <div>
-            <CalendarOutlined style={{ color: "gray" }} />
-          </div> */}
           <Typography.Text italic style={{ color: "gray" }}>
             Last change: 2 hours ago
           </Typography.Text>
         </Row>
-
-        {editingMode && (
+        {isEditingMode && (
           <Row justify="end">
             <Button
               type="primary"
               onClick={(e) => {
-                setEditingMode(false);
+                setIsEditingMode(false);
               }}
-              disabled={title === "" || content === ""}
+              disabled={title === "" || content === "" || isAddingTag}
             >
               Save
             </Button>
