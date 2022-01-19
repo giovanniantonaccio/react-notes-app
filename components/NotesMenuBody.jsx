@@ -63,6 +63,7 @@ export default function NotesMenuBody() {
             return (
               <Note
                 key={id}
+                id={id}
                 tags={tags}
                 title={title}
                 content={content}

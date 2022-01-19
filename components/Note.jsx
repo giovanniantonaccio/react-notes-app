@@ -22,6 +22,7 @@ import Avatar from "antd/lib/avatar/avatar";
 import { parseISO, formatDistance } from "date-fns";
 
 export default function Note({
+  id,
   tags: xTags,
   title: xTitle,
   content: xContent,
@@ -64,6 +65,9 @@ export default function Note({
           type="text"
           style={{ width: "100%", color: "red" }}
           icon={<DeleteOutlined />}
+          onClick={() => {
+            console.log("delete", id);
+          }}
         >
           Delete
         </Button>
