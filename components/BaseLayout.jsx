@@ -60,16 +60,12 @@ export default function BaseLayout({ background }) {
           />
         </Tooltip>
         <Content>
-          <div>
-            <Image
-              alt="page-background"
-              src={background}
-              layout="responsive"
-              width="1244"
-              height="960"
-              style={{ zIndex: -10 }}
-            />
-          </div>
+          <Image
+            alt="page-background"
+            src={background}
+            layout="fill"
+            priority={true}
+          />
         </Content>
       </Layout>
       {!isNotesMenuCollapsed && (
