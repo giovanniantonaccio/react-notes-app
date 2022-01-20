@@ -5,36 +5,36 @@ import Note from "./Note";
 import NewNote from "./NewNote";
 import api from "../services/api";
 
-const mock = [
-  {
-    id: "1",
-    tags: ["INFO"],
-    title: "TESTING 1",
-    type: "GLO",
-    page_url: "https://www.djangoproject.com/",
-    anchor: "lorem ipsum",
-    thumbs_count: 2,
-    created_by: "Giovanni Antonaccio",
-    content:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team. Ant Design, a design language for background applications.",
-    created_at: "2019-10-31T01:30:00.000-05:00",
-    updated_at: "2019-10-31T01:30:00.000-05:00",
-  },
-  {
-    id: "2",
-    tags: ["tag1", "tag2"],
-    title: "TESTING 2",
-    type: "GLO",
-    page_url: "https://www.djangoproject.com/",
-    anchor: "lorem ipsum",
-    thumbs_count: 2,
-    created_by: "Allison Barros",
-    content:
-      "In most business situations, Ant Design needs to solve a lot of information storage problems within the design area, so based on 12 Grids System, we divided the design area into 24 sections.",
-    created_at: "2019-10-31T01:30:00.000-05:00",
-    updated_at: "2019-10-31T01:30:00.000-05:00",
-  },
-];
+// const mock = [
+//   {
+//     id: "1",
+//     tags: ["INFO"],
+//     title: "TESTING 1",
+//     type: "GLO",
+//     page_url: "https://www.djangoproject.com/",
+//     anchor: "lorem ipsum",
+//     thumbs_count: 2,
+//     created_by: "Giovanni Antonaccio",
+//     content:
+//       "Ant Design, a design language for background applications, is refined by Ant UED Team. Ant Design, a design language for background applications.",
+//     created_at: "2019-10-31T01:30:00.000-05:00",
+//     updated_at: "2019-10-31T01:30:00.000-05:00",
+//   },
+//   {
+//     id: "2",
+//     tags: ["tag1", "tag2"],
+//     title: "TESTING 2",
+//     type: "GLO",
+//     page_url: "https://www.djangoproject.com/",
+//     anchor: "lorem ipsum",
+//     thumbs_count: 2,
+//     created_by: "Allison Barros",
+//     content:
+//       "In most business situations, Ant Design needs to solve a lot of information storage problems within the design area, so based on 12 Grids System, we divided the design area into 24 sections.",
+//     created_at: "2019-10-31T01:30:00.000-05:00",
+//     updated_at: "2019-10-31T01:30:00.000-05:00",
+//   },
+// ];
 
 export default function NotesMenuBody() {
   const [notes, setNotes] = useState([]);
@@ -124,22 +124,24 @@ export default function NotesMenuBody() {
           )}
 
           {notes.length > 0 &&
-            notes.map((note) => {
-              return (
-                <Note
-                  key={note.id}
-                  id={note.id}
-                  // tags={tags}
-                  tags={[note.tag.title]}
-                  title={note.title}
-                  content={note.content}
-                  created_by={note.created_by}
-                  updated_at={note.updated_at}
-                  onDelete={onNoteDeletion}
-                  onUpdate={onNoteUpdate}
-                />
-              );
-            })}
+            notes
+              .filter((note) => note.page_url === document.URL)
+              .map((note) => {
+                return (
+                  <Note
+                    key={note.id}
+                    id={note.id}
+                    // tags={tags}
+                    tags={[note.tag.title]}
+                    title={note.title}
+                    content={note.content}
+                    created_by={note.created_by}
+                    updated_at={note.updated_at}
+                    onDelete={onNoteDeletion}
+                    onUpdate={onNoteUpdate}
+                  />
+                );
+              })}
         </Space>
       </Col>
     </Col>
