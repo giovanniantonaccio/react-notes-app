@@ -1,7 +1,9 @@
 import {
+  message,
   Button,
   Card,
   Col,
+  Input,
   Popover,
   Row,
   Space,
@@ -9,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   MoreOutlined,
   DeleteOutlined,
@@ -18,29 +20,102 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import Avatar from "antd/lib/avatar/avatar";
+import { parseISO, formatDistance } from "date-fns";
+import NoteTitle from "./NoteTitle";
+import NoteContent from "./NoteContent";
 
-const defaultContent = ` Ant Design, a design language for background applications, is refined by
-Ant UED Team. Ant Design, a design language for background applications,
-is refined by Ant UED Team. Ant Design, a design language for background
-applications, is refined by Ant UED Team. Ant Design, a design language
-for background applications, is refined by Ant UED Team. Ant Design, a
-design language for background applications, is refined by Ant UED Team.
-Ant Design, a design language for background applications, is refined by
-Ant UED Team.`;
+const { Text } = Typography;
+import api from "../services/api";
 
-export default function Note() {
-  const [title, setTitle] = useState("Default Title");
-  const [content, setContent] = useState(defaultContent);
-  const [editingMode, setEditingMode] = useState(false);
+export default function Note({
+  id,
+  tags: xTags,
+  title: xTitle,
+  content: xContent,
+  created_by,
+  updated_at,
+  onDelete,
+}) {
+  const [title, setTitle] = useState(xTitle);
+  const [content, setContent] = useState(xContent);
+  const [tags, setTags] = useState(xTags);
 
-  const Menu = (
-    <div style={{ margin: "-12px -16px" }}>
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [isAddingTag, setIsAddingTag] = useState(false);
+
+  const handleAddTag = (e) => {
+    setTags([...tags, e.target.value]);
+    setIsAddingTag(false);
+  };
+
+  const handleDeleteTag = (tag) => {
+    const newTags = [...tags];
+    const index = newTags.indexOf(tag);
+    if (index > -1) {
+      newTags.splice(index, 1);
+      setTags(newTags);
+    }
+  };
+
+  const handleSaveNote = () => {
+    if (title === "") {
+      message.error("Title cannot be empty");
+      return;
+    }
+    if (content === "") {
+      message.error("Content cannot be empty");
+      return;
+    }
+    setIsAddingTag(false);
+    setIsEditingMode(false);
+    api
+      .put(`/notes/${id}/`, {
+        title: title,
+        page_url: document.URL,
+        thumbs_count: 0,
+        anchor: "any_anchor",
+        created_by: "User 1",
+        tag: {
+          title: tags[0],
+        },
+        content: content,
+      })
+      .then(() => {
+        message.success("Note updated");
+        onSave();
+      })
+      .catch(() => {
+        message.error("Failed to update note.");
+      });
+  };
+
+  const handleDeleteNote = () => {
+    console.log("delete", id);
+    api
+      .delete(`/notes/${id}`)
+      .then(() => {
+        message.success("Note removed");
+        onDelete();
+      })
+      .catch(() => message.error("Failed to remove note"));
+  };
+
+  const handleCancel = () => {
+    setIsAddingTag(false);
+    setIsEditingMode(false);
+    setTitle(xTitle);
+    setContent(xContent);
+    setTags(xTags);
+  };
+
+  const ContextMenu = (
+    <div style={{ margin: "-12px -16px", width: "120px" }}>
       <Col>
         <Button
           type="text"
-          style={{ width: "100%" }}
+          style={{ width: "100%", color: "#1890ff" }}
           icon={<EditOutlined />}
-          onClick={() => setEditingMode(true)}
+          onClick={() => setIsEditingMode(true)}
         >
           Edit
         </Button>
@@ -48,6 +123,7 @@ export default function Note() {
           type="text"
           style={{ width: "100%", color: "red" }}
           icon={<DeleteOutlined />}
+          onClick={handleDeleteNote}
         >
           Delete
         </Button>
@@ -55,85 +131,81 @@ export default function Note() {
     </div>
   );
 
-  useEffect(() => {
-    console.log(title, content);
-  }, [title, content]);
-
-  const contentChange = (e) => {
-    console.log(e);
-    setContent(e);
-  };
-
   return (
     <Card
       title={
-        <Typography.Paragraph
-          editable={{ editing: editingMode, icon: <></>, onChange: setTitle }}
-        >
-          {title}
-        </Typography.Paragraph>
+        <NoteTitle editing={isEditingMode} onChange={setTitle} title={title} />
       }
       extra={
-        <Popover placement="bottomRight" content={Menu}>
-          <Tooltip title="Menu">
-            <Button type="text" shape="circle" icon={<MoreOutlined />} />
-          </Tooltip>
-        </Popover>
+        !isEditingMode && (
+          <Popover placement="bottomRight" content={ContextMenu}>
+            <Tooltip title="Menu">
+              <Button type="text" shape="circle" icon={<MoreOutlined />} />
+            </Tooltip>
+          </Popover>
+        )
       }
       style={{ width: "100%" }}
     >
-      <Space direction="vertical">
+      <Space direction="vertical" style={{ width: "100%" }}>
         <Row align="middle">
           <Avatar size="small" icon={<UserOutlined />} />
-          <Typography.Text italic style={{ marginLeft: "8px", color: "gray" }}>
-            Giovanni Antonaccio
-          </Typography.Text>
+          <Text italic style={{ marginLeft: "8px", color: "gray" }}>
+            {created_by}
+          </Text>
         </Row>
-        <Typography.Paragraph
-          ellipsis={!editingMode ? { rows: 4 } : false}
-          editable={{
-            editing: editingMode,
-            icon: <></>,
-            onChange: contentChange,
-          }}
-        >
-          {content}
-        </Typography.Paragraph>
+
+        <NoteContent
+          isEditing={isEditingMode}
+          onChange={setContent}
+          content={content}
+        />
 
         <Row gutter={[8, 8]}>
-          <Tag color="magenta">magenta</Tag>
-          <Tag color="red">red</Tag>
-          {/* <Tag color="volcano">long text</Tag> */}
-          <Tooltip title="Add new tag">
-            <Button
-              type="ghost"
-              shape="circle"
-              icon={<PlusOutlined />}
-              size="small"
-            ></Button>
-          </Tooltip>
+          {tags.map((tag) => (
+            <Tag
+              key={tag}
+              closable={isEditingMode}
+              onClose={() => handleDeleteTag(tag)}
+            >
+              {tag}
+            </Tag>
+          ))}
+          {isEditingMode && !isAddingTag && (
+            <Tooltip title="Add new tag">
+              <Button
+                type="dashed"
+                icon={<PlusOutlined />}
+                size="small"
+                onClick={() => setIsAddingTag(!isAddingTag)}
+              >
+                Add tag
+              </Button>
+            </Tooltip>
+          )}
+          {isAddingTag && (
+            <Input placeholder="Add new tag..." onPressEnter={handleAddTag} />
+          )}
         </Row>
 
         <Row>
-          {/* <div>
-            <CalendarOutlined style={{ color: "gray" }} />
-          </div> */}
-          <Typography.Text italic style={{ color: "gray" }}>
-            Last change: 2 hours ago
-          </Typography.Text>
+          <Text italic style={{ color: "gray" }}>
+            Last change: {formatDistance(parseISO(updated_at), new Date())}
+          </Text>
         </Row>
 
-        {editingMode && (
+        {isEditingMode && (
           <Row justify="end">
-            <Button
-              type="primary"
-              onClick={(e) => {
-                setEditingMode(false);
-              }}
-              disabled={title === "" || content === ""}
-            >
-              Save
-            </Button>
+            <Space>
+              <Button onClick={handleCancel}>Cancel</Button>
+              <Button
+                type="primary"
+                onClick={handleSaveNote}
+                disabled={isAddingTag}
+              >
+                Save
+              </Button>
+            </Space>
           </Row>
         )}
       </Space>
