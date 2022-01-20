@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Layout, Row } from "antd";
+import { Button, Layout, Row, Tooltip } from "antd";
 
 import NotesMenuHeader from "../components/NotesMenuHeader";
 import NotesMenuBody from "../components/NotesMenuBody";
@@ -41,29 +41,27 @@ export default function Home() {
           // transition: "margin-left 0.2s",
         }}
       >
-        <Button
-          size="large"
-          type="text"
-          shape={"circle"}
-          icon={<FormOutlined />}
-          onClick={() => setIsNotesMenuCollapsed(!isNotesMenuCollapsed)}
-          style={{
-            position: "fixed",
-            top: "16px",
-            right: "250px",
-            zIndex: 1,
-            color: "#b6b9b8",
-          }}
-        />
+        <Tooltip title="Check notes">
+          <Button
+            type="primary"
+            shape={"circle"}
+            icon={<FormOutlined style={{ fontSize: "24px" }} />}
+            onClick={() => setIsNotesMenuCollapsed(!isNotesMenuCollapsed)}
+            style={{
+              position: "fixed",
+              bottom: "40px",
+              right: "40px",
+              zIndex: 1,
+              width: "64px",
+              height: "64px",
+            }}
+          />
+        </Tooltip>
         <Content>
           {/* <Content style={{ margin: "24px 16px 0", overflow: "initial" }}> */}
           <div
           // style={{ padding: 24, textAlign: "center" }}
           >
-            {/* <iframe
-              style={{ height: "calc(100vh - 70px)", width: "100%" }}
-              src={page}
-            ></iframe> */}
             <Image
               alt="page-mock-1"
               src="/dashboard.png"
