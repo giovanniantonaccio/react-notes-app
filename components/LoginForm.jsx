@@ -10,7 +10,6 @@ const LoginForm = () => {
 
   useEffect(() => {
     const loginInfo = localStorage.getItem('loginInfo')
-    console.log('logininfoooo from login', loginInfo)
     // redirect to home if already logged in
     if (loginInfo) {
       router.push('/')

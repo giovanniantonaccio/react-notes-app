@@ -30,7 +30,6 @@ const RouteGuard = ({ children }) => {
     const publicPaths = ['/login']
     const path = url.split('?')[0]
     const loginInfo = localStorage.getItem('loginInfo')
-    console.log('login', loginInfo)
     if (!loginInfo && !publicPaths.includes(path)) {
       setAuthorized(false)
       router.push({

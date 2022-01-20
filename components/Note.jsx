@@ -10,22 +10,23 @@ import {
   Tag,
   Tooltip,
   Typography,
-} from "antd";
-import React, { useState } from "react";
+  Checkbox,
+} from 'antd'
+import React, { useState } from 'react'
 import {
   MoreOutlined,
   DeleteOutlined,
   EditOutlined,
   UserOutlined,
   PlusOutlined,
-} from "@ant-design/icons";
-import Avatar from "antd/lib/avatar/avatar";
-import { parseISO, formatDistance } from "date-fns";
-import NoteTitle from "./NoteTitle";
-import NoteContent from "./NoteContent";
+} from '@ant-design/icons'
+import Avatar from 'antd/lib/avatar/avatar'
+import { parseISO, formatDistance } from 'date-fns'
+import NoteTitle from './NoteTitle'
+import NoteContent from './NoteContent'
 
-const { Text } = Typography;
-import api from "../services/api";
+const { Text } = Typography
+import api from '../services/api'
 
 export default function Note({
   id,
@@ -35,85 +36,91 @@ export default function Note({
   created_by,
   updated_at,
   onDelete,
+  isPrivate: xIsPrivate,
 }) {
-  const [title, setTitle] = useState(xTitle);
-  const [content, setContent] = useState(xContent);
-  const [tags, setTags] = useState(xTags);
+  const [title, setTitle] = useState(xTitle)
+  const [content, setContent] = useState(xContent)
+  const [tags, setTags] = useState(xTags)
+  const [isPrivate, setIsPrivate] = useState(xIsPrivate)
 
-  const [isEditingMode, setIsEditingMode] = useState(false);
-  const [isAddingTag, setIsAddingTag] = useState(false);
+  const [isEditingMode, setIsEditingMode] = useState(false)
+  const [isAddingTag, setIsAddingTag] = useState(false)
 
-  const handleAddTag = (e) => {
-    setTags([...tags, e.target.value]);
-    setIsAddingTag(false);
-  };
+  const loginInfo = JSON.parse(localStorage.getItem('loginInfo'))
 
-  const handleDeleteTag = (tag) => {
-    const newTags = [...tags];
-    const index = newTags.indexOf(tag);
+  const handleAddTag = e => {
+    setTags([...tags, e.target.value])
+    setIsAddingTag(false)
+  }
+
+  const handleDeleteTag = tag => {
+    const newTags = [...tags]
+    const index = newTags.indexOf(tag)
     if (index > -1) {
-      newTags.splice(index, 1);
-      setTags(newTags);
+      newTags.splice(index, 1)
+      setTags(newTags)
     }
-  };
+  }
 
   const handleSaveNote = () => {
-    if (title === "") {
-      message.error("Title cannot be empty");
-      return;
+    if (title === '') {
+      message.error('Title cannot be empty')
+      return
     }
-    if (content === "") {
-      message.error("Content cannot be empty");
-      return;
+    if (content === '') {
+      message.error('Content cannot be empty')
+      return
     }
-    setIsAddingTag(false);
-    setIsEditingMode(false);
+    setIsAddingTag(false)
+    setIsEditingMode(false)
     api
       .put(`/notes/${id}/`, {
         title: title,
         page_url: document.URL,
         thumbs_count: 0,
-        anchor: "any_anchor",
-        created_by: "User 1",
+        anchor: 'any_anchor',
+        created_by: loginInfo.username,
         tag: {
           title: tags[0],
         },
         content: content,
+        type: isPrivate ? 'PER' : 'GLO',
       })
       .then(() => {
-        message.success("Note updated");
-        onSave();
+        message.success('Note updated')
+        onSave()
       })
       .catch(() => {
-        message.error("Failed to update note.");
-      });
-  };
+        message.error('Failed to update note.')
+      })
+  }
 
   const handleDeleteNote = () => {
-    console.log("delete", id);
+    console.log('delete', id)
     api
       .delete(`/notes/${id}`)
       .then(() => {
-        message.success("Note removed");
-        onDelete();
+        message.success('Note removed')
+        onDelete()
       })
-      .catch(() => message.error("Failed to remove note"));
-  };
+      .catch(() => message.error('Failed to remove note'))
+  }
 
   const handleCancel = () => {
-    setIsAddingTag(false);
-    setIsEditingMode(false);
-    setTitle(xTitle);
-    setContent(xContent);
-    setTags(xTags);
-  };
+    setIsAddingTag(false)
+    setIsEditingMode(false)
+    setTitle(xTitle)
+    setContent(xContent)
+    setTags(xTags)
+    setIsPrivate(xIsPrivate)
+  }
 
   const ContextMenu = (
-    <div style={{ margin: "-12px -16px", width: "120px" }}>
+    <div style={{ margin: '-12px -16px', width: '120px' }}>
       <Col>
         <Button
           type="text"
-          style={{ width: "100%", color: "#1890ff" }}
+          style={{ width: '100%', color: '#1890ff' }}
           icon={<EditOutlined />}
           onClick={() => setIsEditingMode(true)}
         >
@@ -121,7 +128,7 @@ export default function Note({
         </Button>
         <Button
           type="text"
-          style={{ width: "100%", color: "red" }}
+          style={{ width: '100%', color: 'red' }}
           icon={<DeleteOutlined />}
           onClick={handleDeleteNote}
         >
@@ -129,7 +136,7 @@ export default function Note({
         </Button>
       </Col>
     </div>
-  );
+  )
 
   return (
     <Card
@@ -145,12 +152,12 @@ export default function Note({
           </Popover>
         )
       }
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
     >
-      <Space direction="vertical" style={{ width: "100%" }}>
+      <Space direction="vertical" style={{ width: '100%' }}>
         <Row align="middle">
           <Avatar size="small" icon={<UserOutlined />} />
-          <Text italic style={{ marginLeft: "8px", color: "gray" }}>
+          <Text italic style={{ marginLeft: '8px', color: 'gray' }}>
             {created_by}
           </Text>
         </Row>
@@ -162,7 +169,7 @@ export default function Note({
         />
 
         <Row gutter={[8, 8]}>
-          {tags.map((tag) => (
+          {tags.map(tag => (
             <Tag
               key={tag}
               closable={isEditingMode}
@@ -189,26 +196,36 @@ export default function Note({
         </Row>
 
         <Row>
-          <Text italic style={{ color: "gray" }}>
+          <Text italic style={{ color: 'gray' }}>
             Last change: {formatDistance(parseISO(updated_at), new Date())}
           </Text>
         </Row>
 
         {isEditingMode && (
-          <Row justify="end">
-            <Space>
-              <Button onClick={handleCancel}>Cancel</Button>
-              <Button
-                type="primary"
-                onClick={handleSaveNote}
-                disabled={isAddingTag}
+          <>
+            <Row justify="start">
+              <Checkbox
+                onChange={e => setIsPrivate(e.target.checked)}
+                checked={isPrivate}
               >
-                Save
-              </Button>
-            </Space>
-          </Row>
+                Make it private
+              </Checkbox>
+            </Row>
+            <Row justify="end">
+              <Space>
+                <Button onClick={handleCancel}>Cancel</Button>
+                <Button
+                  type="primary"
+                  onClick={handleSaveNote}
+                  disabled={isAddingTag}
+                >
+                  Save
+                </Button>
+              </Space>
+            </Row>
+          </>
         )}
       </Space>
     </Card>
-  );
+  )
 }
