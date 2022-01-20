@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import Note from "./Note";
 import NewNote from "./NewNote";
+import api from "../services/api";
 
 const mock = [
   {
@@ -36,34 +37,56 @@ const mock = [
 ];
 
 export default function NotesMenuBody() {
-  const [notes, setNotes] = useState(mock);
+  const [notes, setNotes] = useState([]);
   const [isAddingNewNote, setIsAddingNewNote] = useState(false);
 
+  const fetchNotes = () => {
+    api
+      .get("/notes")
+      .then((result) => {
+        console.log("data", result.data);
+        setNotes(result.data);
+      })
+      .catch((e) => console.log(e));
+  };
+
   useEffect(() => {
-    console.log(notes);
+    fetchNotes();
+  }, []);
+
+  useEffect(() => {
+    console.log("notes", notes);
   }, [notes]);
 
   const onNewNoteSave = (data) => {
     setIsAddingNewNote(false);
-    // TODO: refresh list of notes
-    setNotes([
-      ...notes,
-      {
-        ...data,
-        id: Math.random(),
-        type: "GLO",
-        page_url: "https://www.djangoproject.com/",
-        anchor: "lorem ipsum",
-        thumbs_count: 2,
-        created_by: "Giovanni Antonaccio",
-        created_at: "2019-10-31T01:30:00.000-05:00",
-        updated_at: "2019-10-31T01:30:00.000-05:00",
-      },
-    ]);
+    fetchNotes();
+    // setNotes([
+    //   ...notes,
+    //   {
+    //     ...data,
+    //     id: Math.random(),
+    //     type: "GLO",
+    //     page_url: "https://www.djangoproject.com/",
+    //     anchor: "lorem ipsum",
+    //     thumbs_count: 2,
+    //     created_by: "Giovanni Antonaccio",
+    //     created_at: "2019-10-31T01:30:00.000-05:00",
+    //     updated_at: "2019-10-31T01:30:00.000-05:00",
+    //   },
+    // ]);
   };
 
   const onNewNoteCancel = () => {
     setIsAddingNewNote(false);
+  };
+
+  const onNoteDeletion = () => {
+    fetchNotes();
+  };
+
+  const onNoteUpdate = () => {
+    fetchNotes();
   };
 
   return (
@@ -100,20 +123,23 @@ export default function NotesMenuBody() {
             <NewNote onSave={onNewNoteSave} onCancel={onNewNoteCancel} />
           )}
 
-          {notes.map((note) => {
-            const { id, tags, title, content, created_by, updated_at } = note;
-            return (
-              <Note
-                key={id}
-                id={id}
-                tags={tags}
-                title={title}
-                content={content}
-                created_by={created_by}
-                updated_at={updated_at}
-              />
-            );
-          })}
+          {notes.length > 0 &&
+            notes.map((note) => {
+              return (
+                <Note
+                  key={note.id}
+                  id={note.id}
+                  // tags={tags}
+                  tags={[note.tag.title]}
+                  title={note.title}
+                  content={note.content}
+                  created_by={note.created_by}
+                  updated_at={note.updated_at}
+                  onDelete={onNoteDeletion}
+                  onUpdate={onNoteUpdate}
+                />
+              );
+            })}
         </Space>
       </Col>
     </Col>

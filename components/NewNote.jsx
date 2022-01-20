@@ -1,29 +1,15 @@
-import {
-  message,
-  Button,
-  Card,
-  Col,
-  Input,
-  Popover,
-  Row,
-  Space,
-  Tag,
-  Tooltip,
-  Typography,
-} from "antd";
+import { message, Button, Card, Input, Row, Space, Tag, Tooltip } from "antd";
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 
 import NoteTitle from "./NoteTitle";
 import NoteContent from "./NoteContent";
-
-const { Paragraph } = Typography;
+import api from "../services/api";
 
 export default function NewNote({ onSave, onCancel }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState([]);
-
   const [isAddingTag, setIsAddingTag] = useState(false);
 
   const handleAddTag = (e) => {
@@ -50,8 +36,25 @@ export default function NewNote({ onSave, onCancel }) {
       return;
     }
     setIsAddingTag(false);
-    // TODO: api /newNote
-    onSave({ title, content, tags });
+    api
+      .post("/notes/", {
+        title: title,
+        page_url: document.URL,
+        thumbs_count: 0,
+        anchor: "any_anchor",
+        created_by: "User 1",
+        tag: {
+          title: tags[0],
+        },
+        content: content,
+      })
+      .then(() => {
+        message.success("New note added!");
+        onSave();
+      })
+      .catch(() => {
+        message.error("Failed to add new note.");
+      });
   };
 
   const handleCancel = () => {

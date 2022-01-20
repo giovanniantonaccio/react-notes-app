@@ -24,7 +24,8 @@ import { parseISO, formatDistance } from "date-fns";
 import NoteTitle from "./NoteTitle";
 import NoteContent from "./NoteContent";
 
-const { Paragraph, Text } = Typography;
+const { Text } = Typography;
+import api from "../services/api";
 
 export default function Note({
   id,
@@ -33,6 +34,7 @@ export default function Note({
   content: xContent,
   created_by,
   updated_at,
+  onDelete,
 }) {
   const [title, setTitle] = useState(xTitle);
   const [content, setContent] = useState(xContent);
@@ -66,12 +68,36 @@ export default function Note({
     }
     setIsAddingTag(false);
     setIsEditingMode(false);
-    console.log("save", { title, content, tags });
-    // TODO: api /updateNote
+    api
+      .put(`/notes/${id}/`, {
+        title: title,
+        page_url: document.URL,
+        thumbs_count: 0,
+        anchor: "any_anchor",
+        created_by: "User 1",
+        tag: {
+          title: tags[0],
+        },
+        content: content,
+      })
+      .then(() => {
+        message.success("Note updated");
+        onSave();
+      })
+      .catch(() => {
+        message.error("Failed to update note.");
+      });
   };
 
   const handleDeleteNote = () => {
     console.log("delete", id);
+    api
+      .delete(`/notes/${id}`)
+      .then(() => {
+        message.success("Note removed");
+        onDelete();
+      })
+      .catch(() => message.error("Failed to remove note"));
   };
 
   const handleCancel = () => {
