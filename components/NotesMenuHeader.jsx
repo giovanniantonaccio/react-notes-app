@@ -6,7 +6,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 
-export default function NotesMenuHeader() {
+export default function NotesMenuHeader({ onClose }) {
   const [search, setSearch] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
@@ -27,18 +27,22 @@ export default function NotesMenuHeader() {
           </Col>
           <Col>
             <Space>
-              <Tooltip title="Search">
+              {/* <Tooltip title="Search">
                 <Button
                   shape="circle"
                   icon={<SearchOutlined />}
                   onClick={() => setIsSearching(true)}
                 />
-              </Tooltip>
-              <Tooltip title="Expand">
+              </Tooltip> */}
+              {/* <Tooltip title="Expand">
                 <Button shape="circle" icon={<ExpandAltOutlined />} />
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="Close">
-                <Button shape="circle" icon={<CloseOutlined />} />
+                <Button
+                  shape="circle"
+                  icon={<CloseOutlined />}
+                  onClick={onClose}
+                />
               </Tooltip>
             </Space>
           </Col>
